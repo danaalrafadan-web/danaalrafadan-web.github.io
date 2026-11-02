@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مهارات الوحدة التدريبية</title>
+<meta name="description" content="المهارات السبع التي تدربت عليها في الوحدة التدريبية، مع التطبيق الفعلي لكل مهارة">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Reem+Kufi:wght@600&display=swap">
+<style>
+/* تخطيط: رأس + فهرس، ثم قسم لكل مهارة فيه الشرح ومكان التطبيق وتجربة حية */
+:root{
+  --bg:#f3f6f5; --surface:#ffffff; --fg:#1d2a28; --muted:#5d6f6b;
+  --line:#d6e0dd; --accent:#0f6b5c; --tag:#e3efec; --code-bg:#1b2624; --code-fg:#d8e6e2;
+  --ok:#1f7a4d; --warn:#9a5b00;
+  --display:"Reem Kufi","Tajawal",system-ui,sans-serif;
+  --body:"Tajawal",system-ui,"Segoe UI",sans-serif;
+  --mono:Consolas,"Cascadia Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#111816; --surface:#19221f; --fg:#e4ece9; --muted:#9fb2ad;
+  --line:#2c3a36; --accent:#4fbfa8; --tag:#22302c; --code-bg:#0b1110;
+  --ok:#5cc48f; --warn:#e0a24a; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.7}
+.wrap{max-width:1000px;margin:0 auto;padding:40px 16px 56px}
+a{color:var(--accent)}
+header{margin-bottom:24px;max-width:65ch}
+h1{font-family:var(--display);color:var(--accent);font-size:2.2rem;margin:0 0 8px}
+header p{margin:0;color:var(--muted)}
+.back{display:inline-block;margin-bottom:16px;font-weight:700;text-decoration:none}
+
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 32px;padding:0;list-style:none}
+.toc a{display:block;background:var(--tag);color:var(--accent);text-decoration:none;font-weight:700;font-size:.9rem;padding:4px 12px;border-radius:999px}
+.toc a:hover,.toc a:focus-visible{outline:2px solid var(--accent)}
+
+section.skill{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:20px;scroll-margin-top:16px}
+.skill-head{display:flex;gap:14px;align-items:flex-start}
+.num{flex:none;width:40px;height:40px;border-radius:50%;background:var(--accent);color:var(--surface);display:grid;place-items:center;font-family:var(--display);font-size:1.2rem}
+.skill h2{font-size:1.25rem;margin:4px 0 4px;line-height:1.5}
+.skill .lead{margin:0;color:var(--muted)}
+.where{margin:16px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+.where li::before{content:"◂ ";color:var(--accent)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tag{background:var(--tag);color:var(--accent);font-size:.8rem;padding:2px 10px;border-radius:999px}
+h3{font-size:1rem;margin:20px 0 8px}
+
+pre{direction:ltr;text-align:left;background:var(--code-bg);color:var(--code-fg);font-family:var(--mono);font-size:.82rem;line-height:1.6;padding:14px;border-radius:8px;overflow-x:auto;margin:0}
+details{margin-top:14px}
+summary{cursor:pointer;font-weight:700;color:var(--accent)}
+details pre{margin-top:8px}
+.note{font-size:.85rem;color:var(--muted);margin:8px 0 0}
+
+button{font:inherit;font-weight:700;border:1px solid var(--accent);background:var(--surface);color:var(--accent);border-radius:8px;padding:6px 14px;cursor:pointer}
+button.primary{background:var(--accent);color:var(--surface)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* 2: محرر HTML/JS */
+.play{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.play textarea{width:100%;min-height:220px;direction:ltr;text-align:left;font-family:var(--mono);font-size:.82rem;background:var(--code-bg);color:var(--code-fg);border:0;border-radius:8px;padding:12px;resize:vertical}
+.play iframe{width:100%;min-height:220px;border:1px solid var(--line);border-radius:8px;background:#fff}
+
+/* 3: مخطط قاعدة البيانات */
+.erd{width:100%;height:auto;display:block}
+.erd .box{fill:var(--surface);stroke:var(--accent);stroke-width:1.5}
+.erd .hd{fill:var(--accent)}
+.erd .hdt{fill:var(--surface);font:700 13px var(--mono)}
+.erd .col{fill:var(--fg);font:12px var(--mono)}
+.erd .pk{fill:var(--accent);font:700 12px var(--mono)}
+.erd .rel{stroke:var(--muted);stroke-width:1.5;fill:none}
+.erd .lbl{fill:var(--muted);font:11px var(--body)}
+
+/* 4: محاكاة البصمة */
+.sim{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sim>*,.play>*{min-width:0}
+#req{white-space:pre-wrap;word-break:break-all}
+.sim .actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{border-bottom:1px solid var(--line);padding:6px;text-align:right}
+th{color:var(--muted);font-weight:500}
+td.m{font-family:var(--mono);direction:ltr;text-align:right}
+
+/* 5: الدورات */
+.cycles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+.cycle{border:1px solid var(--line);border-radius:10px;padding:14px}
+.cycle b{color:var(--accent)}
+.cycle p{margin:6px 0 0;font-size:.9rem}
+.phases{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+.phases span{font-size:.75rem;background:var(--tag);border-radius:4px;padding:1px 6px}
+
+/* 6: المنصات */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--surface)}
+.panel{border:1px solid var(--line);border-radius:10px;padding:14px}
+.panel ol{margin:6px 0 0;padding-inline-start:20px}
+.status{font-weight:700}
+.status.ok{color:var(--ok)} .status.warn{color:var(--warn)}
+
+footer{margin-top:40px;color:var(--muted);font-size:.85rem}
+
+@media (max-width:700px){
+  .play,.sim,.cycles{grid-template-columns:1fr}
+  section.skill{padding:18px}
+  h1{font-size:1.8rem}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">→ معرض أعمالي</a>
+  <header>
+    <h1>مهارات الوحدة التدريبية</h1>
+    <p>المهارات السبع التي تدربت عليها في الوحدة التدريبية. لكل مهارة: وش تعني، ووين طبقتها في مشروع <a href="../attendance-system/">نظام الحضور والانصراف</a>، وتجربة تقدر تشغلها هنا.</p>
+  </header>
+
+  <nav aria-label="فهرس المهارات">
+    <ul class="toc">
+      <li><a href="#s1">1. Java</a></li>
+      <li><a href="#s2">2. HTML و JavaScript</a></li>
+      <li><a href="#s3">3. قواعد بيانات Oracle</a></li>
+      <li><a href="#s4">4. موقع ديناميكي</a></li>
+      <li><a href="#s5">5. منهجيات التطوير</a></li>
+      <li><a href="#s6">6. المتصفحات والأجهزة الذكية</a></li>
+      <li><a href="#s7">7. Android</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <!-- 1 -->
+    <section class="skill" id="s1">
+      <div class="skill-head"><span class="num">1</span><div>
+        <h2>تحليل المشكلات البرمجية وتصميم برنامج متكامل بواجهات رسومية بلغة Java</h2>
+        <p class="lead">المشكلة: المدير يحتاج يتابع حضور الموظفين ويعدل الدوامات من جهازه. الحل: تطبيق سطح مكتب بـ Java Swing مربوط بقاعدة البيانات، وخادم Java يخدم الموقع والتطبيق.</p>
+      </div></div>
+      <ul class="where">
+        <li>لوحة المدير على سطح المكتب: <a href="../attendance-system/server/src/attendance/AdminApp.java">AdminApp.java</a> (تسجيل دخول، جداول الحضور والموظفين والدوامات، تصدير)</li>
+        <li>الخادم: <a href="../attendance-system/server/src/attendance/Server.java">Server.java</a>، وقواعد الدوام: <a href="../attendance-system/server/src/attendance/Rules.java">Rules.java</a></li>
+        <li>طبقة قاعدة البيانات عبر JDBC: <a href="../attendance-system/server/src/attendance/Db.java">Db.java</a></li>
+      </ul>
+      <div class="tags"><span class="tag">Java 17</span><span class="tag">Swing</span><span class="tag">JDBC</span><span class="tag">OOP</span></div>
+      <details>
+        <summary>مقتطف من AdminApp.java</summary>
+<pre>public class AdminApp extends JFrame {
+    private final Db db = new Db();
+    private final DefaultTableModel dailyModel = model("الرقم", "الاسم", "القسم", "الدوام",
+        "الحضور", "الاستراحة", "الانصراف", "الحالة", "التأخير (د)", "إضافي (د)");
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            UIManager.put("defaultFont", FONT);
+            if (login()) new AdminApp().setVisible(true);
+            else System.exit(0);
+        });
+    }
+}</pre>
+      </details>
+    </section>
+
+    <!-- 2 -->
+    <section class="skill" id="s2">
+      <div class="skill-head"><span class="num">2</span><div>
+        <h2>إنشاء صفحات الإنترنت باستخدام لغتي HTML و JavaScript</h2>
+        <p class="lead">صفحات البصمة ولوحة المدير مكتوبة بـ HTML و CSS و JavaScript بدون مكتبات خارجية، وكذلك باقي مشاريع المعرض.</p>
+      </div></div>
+      <ul class="where">
+        <li>صفحة البصمة: <a href="../attendance-system/web/">attendance-system/web/index.html</a></li>
+        <li>لوحة المدير على الويب: <a href="../attendance-system/web/admin.html">admin.html</a></li>
+        <li>مشاريع ثانية: <a href="../company-website/">موقع شركة الريادة</a>، <a href="../smart-attendance/">نظام الحضور الذكي</a>، <a href="../عون/">عون</a></li>
+      </ul>
+      <div class="tags"><span class="tag">HTML5</span><span class="tag">CSS</span><span class="tag">JavaScript</span><span class="tag">DOM</span></div>
+      <h3>جرّبه: عدّل الكود وشوف النتيجة مباشرة</h3>
+      <div class="play">
+        <textarea id="code" spellcheck="false" aria-label="كود HTML و JavaScript"></textarea>
+        <iframe id="out" title="نتيجة الكود" sandbox="allow-scripts"></iframe>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="skill" id="s3">
+      <div class="skill-head"><span class="num">3</span><div>
+        <h2>تحليل وتصميم أنظمة قواعد البيانات وإدارة قاعدة بيانات Oracle</h2>
+        <p class="lead">أربعة جداول بعلاقات ومفاتيح أجنبية وقيود CHECK و UNIQUE، وفهرس على التاريخ، و View يجمع حركات اليوم في صف واحد للتقارير.</p>
+      </div></div>
+      <ul class="where">
+        <li>إنشاء المستخدم والصلاحيات: <a href="../attendance-system/database/create_user.sql">create_user.sql</a></li>
+        <li>الجداول والعلاقات والبيانات التجريبية: <a href="../attendance-system/database/schema.sql">schema.sql</a></li>
+      </ul>
+      <div class="tags"><span class="tag">Oracle XE 21c</span><span class="tag">SQL</span><span class="tag">ERD</span><span class="tag">View</span></div>
+      <h3>مخطط العلاقات (ERD)</h3>
+      <svg class="erd" viewBox="0 0 760 250" role="img" aria-label="مخطط العلاقات: departments و shifts مرتبطة بـ employees، و employees مرتبط بـ attendance" direction="ltr">
+        <path class="rel" d="M170 60 H230 V95 H290"/>
+        <path class="rel" d="M170 190 H230 V125 H290"/>
+        <path class="rel" d="M470 110 H560"/>
+        <text class="lbl" x="200" y="52">1 : N</text>
+        <text class="lbl" x="200" y="205">1 : N</text>
+        <text class="lbl" x="497" y="102">1 : N</text>
+
+        <rect class="box" x="10" y="20" width="160" height="80" rx="6"/>
+        <rect class="hd" x="10" y="20" width="160" height="24" rx="6"/>
+        <text class="hdt" x="20" y="37">departments</text>
+        <text class="pk" x="20" y="64">PK dept_id</text>
+        <text class="col" x="20" y="84">name</text>
+
+        <rect class="box" x="10" y="130" width="160" height="110" rx="6"/>
+        <rect class="hd" x="10" y="130" width="160" height="24" rx="6"/>
+        <text class="hdt" x="20" y="147">shifts</text>
+        <text class="pk" x="20" y="172">PK shift_id</text>
+        <text class="col" x="20" y="190">name, start_time</text>
+        <text class="col" x="20" y="208">break_time</text>
+        <text class="col" x="20" y="226">end_time</text>
+
+        <rect class="box" x="290" y="20" width="180" height="170" rx="6"/>
+        <rect class="hd" x="290" y="20" width="180" height="24" rx="6"/>
+        <text class="hdt" x="300" y="37">employees</text>
+        <text class="pk" x="300" y="64">PK emp_id</text>
+        <text class="col" x="300" y="84">full_name</text>
+        <text class="col" x="300" y="104">FK dept_id</text>
+        <text class="col" x="300" y="124">FK shift_id</text>
+        <text class="col" x="300" y="144">role (EMP|ADMIN)</text>
+        <text class="col" x="300" y="164">pin_hash, active</text>
+
+        <rect class="box" x="560" y="20" width="190" height="170" rx="6"/>
+        <rect class="hd" x="560" y="20" width="190" height="24" rx="6"/>
+        <text class="hdt" x="570" y="37">attendance</text>
+        <text class="pk" x="570" y="64">PK att_id</text>
+        <text class="col" x="570" y="84">FK emp_id</text>
+        <text class="col" x="570" y="104">att_date</text>
+        <text class="col" x="570" y="124">action</text>
+        <text class="col" x="570" y="144">action_time</text>
+        <text class="col" x="570" y="164">device</text>
+      </svg>
+      <details>
+        <summary>جدول الحضور والـ View في SQL</summary>
+<pre>CREATE TABLE attendance (
+  att_id      NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  emp_id      VARCHAR2(20) NOT NULL REFERENCES employees(emp_id),
+  att_date    DATE         NOT NULL,
+  action      VARCHAR2(12) NOT NULL
+              CHECK (action IN ('IN','BREAK_START','BREAK_END','OUT','OT_START','OT_END')),
+  action_time TIMESTAMP    NOT NULL,
+  device      VARCHAR2(20),
+  CONSTRAINT uq_attendance UNIQUE (emp_id, att_date, action)
+);
+
+CREATE OR REPLACE VIEW v_daily_summary AS
+SELECT e.emp_id, e.full_name, d.name AS dept_name, a.att_date,
+       MAX(CASE WHEN a.action = 'IN'  THEN a.action_time END) AS check_in,
+       MAX(CASE WHEN a.action = 'OUT' THEN a.action_time END) AS check_out
+FROM employees e
+JOIN attendance a       ON a.emp_id = e.emp_id
+LEFT JOIN departments d ON d.dept_id = e.dept_id
+GROUP BY e.emp_id, e.full_name, d.name, a.att_date;</pre>
+      </details>
+    </section>
+
+    <!-- 4 -->
+    <section class="skill" id="s4">
+      <div class="skill-head"><span class="num">4</span><div>
+        <h2>تصميم مواقع الإنترنت الديناميكية وربطها بقاعدة بيانات ومعالجة البيانات من خلال الموقع</h2>
+        <p class="lead">الموقع ما يعرض صفحات ثابتة: يرسل طلبات لواجهة REST في خادم Java، والخادم يتحقق من القواعد بوقته هو ويكتب في Oracle ويرجع الحالة الجديدة.</p>
+      </div></div>
+      <ul class="where">
+        <li>نقاط الواجهة: <code>/api/login</code>، <code>/api/punch</code>، <code>/api/status</code>، <code>/api/admin/summary</code>، <code>/api/admin/employees</code> في <a href="../attendance-system/server/src/attendance/Server.java">Server.java</a></li>
+        <li>الاستدعاء من الصفحة: <a href="../attendance-system/web/common.js">common.js</a></li>
+      </ul>
+      <div class="tags"><span class="tag">REST API</span><span class="tag">JSON</span><span class="tag">fetch</span><span class="tag">CRUD</span></div>
+      <h3>جرّبه: محاكاة تسجيل البصمة</h3>
+      <p class="note">هذي محاكاة في المتصفح بنفس تسلسل القواعد. في النظام الحقيقي الطلب يروح للخادم والصف ينحفظ في جدول attendance.</p>
+      <div class="sim">
+        <div>
+          <div class="actions" id="actions"></div>
+          <pre id="req" aria-live="polite">// اضغط إجراء لعرض الطلب والرد</pre>
+        </div>
+        <div>
+          <table>
+            <caption class="note" style="text-align:right">صفوف جدول attendance (تجريبية)</caption>
+            <thead><tr><th>emp_id</th><th>action</th><th>action_time</th><th>device</th></tr></thead>
+            <tbody id="rows"><tr><td colspan="4" class="note">ما فيه حركات اليوم.</td></tr></tbody>
+          </table>
+          <button id="reset" style="margin-top:10px">تصفير</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="skill" id="s5">
+      <div class="skill-head"><span class="num">5</span><div>
+        <h2>منهجيات تطوير البرمجيات وإدارة نظم المعلومات والمشاريع ونمذجة متطلبات سوق العمل في مرحلتي التصميم والتحليل</h2>
+        <p class="lead">اتبعت النموذج التكراري (Iterative): ثلاث دورات، كل دورة تمر بالتحليل والتصميم والتنفيذ والاختبار. ووثقت المتطلبات والمخططات وحالات الاختبار.</p>
+      </div></div>
+      <ul class="where">
+        <li>وثيقة التحليل والتصميم: <a href="../attendance-system/docs/analysis.html">analysis.html</a> (المتطلبات، المعمارية، ERD، حالات الاستخدام، مخطط الحالات، مخطط التسلسل، حالات الاختبار)</li>
+      </ul>
+      <div class="tags"><span class="tag">Iterative</span><span class="tag">UML</span><span class="tag">متطلبات</span><span class="tag">اختبار</span></div>
+      <div class="cycles">
+        <div class="cycle"><b>الدورة 1</b><p>نموذج أولي للبصمة على المتصفح بـ HTML و JavaScript.</p><div class="phases"><span>تحليل</span><span>تصميم</span><span>تنفيذ</span><span>اختبار</span></div></div>
+        <div class="cycle"><b>الدورة 2</b><p>قاعدة بيانات Oracle، وخادم Java، وربط الموقع بالبيانات.</p><div class="phases"><span>تحليل</span><span>تصميم</span><span>تنفيذ</span><span>اختبار</span></div></div>
+        <div class="cycle"><b>الدورة 3</b><p>لوحة المدير (ويب وسطح مكتب)، وتطبيق Android، والتثبيت على الأجهزة الذكية.</p><div class="phases"><span>تحليل</span><span>تصميم</span><span>تنفيذ</span><span>اختبار</span></div></div>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="skill" id="s6">
+      <div class="skill-head"><span class="num">6</span><div>
+        <h2>تصميم تطبيقات تعمل على متصفحات الإنترنت والأجهزة الذكية (Android - iOS - Microsoft - Blackberry) مع نشرها على متاجر تلك الأجهزة</h2>
+        <p class="lead">الموقع متجاوب ويشتغل على أي متصفح، ومعه PWA (ملف manifest و Service Worker) فينثبت كتطبيق على الجوال والكمبيوتر ويفتح بدون إنترنت.</p>
+      </div></div>
+      <ul class="where">
+        <li>ملف التطبيق: <a href="../attendance-system/web/manifest.webmanifest">manifest.webmanifest</a>، والتخزين بدون إنترنت: <a href="../attendance-system/web/sw.js">sw.js</a></li>
+      </ul>
+      <div class="tags"><span class="tag">Responsive</span><span class="tag">PWA</span><span class="tag">Service Worker</span></div>
+      <h3>التثبيت والنشر حسب المنصة</h3>
+      <div class="tabs" role="tablist" aria-label="المنصات">
+        <button role="tab" aria-selected="true" aria-controls="p-android" id="t-android">Android</button>
+        <button role="tab" aria-selected="false" aria-controls="p-ios" id="t-ios">iOS</button>
+        <button role="tab" aria-selected="false" aria-controls="p-ms" id="t-ms">Microsoft</button>
+        <button role="tab" aria-selected="false" aria-controls="p-bb" id="t-bb">BlackBerry</button>
+      </div>
+      <div class="panel" role="tabpanel" id="p-android" aria-labelledby="t-android">
+        <b>التثبيت:</b> من Chrome، القائمة ⋮ ثم «تثبيت التطبيق»، أو تطبيق Android الأصلي (المهارة 7).
+        <ol><li>النشر على Google Play: من Android Studio نسوي Build ثم Generate Signed App Bundle (.aab).</li><li>نرفع الملف في Google Play Console مع الوصف والصور وسياسة الخصوصية.</li></ol>
+      </div>
+      <div class="panel" role="tabpanel" id="p-ios" aria-labelledby="t-ios" hidden>
+        <b>التثبيت:</b> من Safari، زر المشاركة ثم «إضافة إلى الشاشة الرئيسية».
+        <ol><li>النشر على App Store: نغلف الموقع في تطبيق WKWebView بـ Xcode.</li><li>نرفعه عبر App Store Connect، ويحتاج حساب Apple Developer وجهاز Mac.</li></ol>
+      </div>
+      <div class="panel" role="tabpanel" id="p-ms" aria-labelledby="t-ms" hidden>
+        <b>التثبيت:</b> من Edge على Windows، أيقونة «تثبيت التطبيق» في شريط العنوان.
+        <ol><li>النشر على Microsoft Store: نولد حزمة MSIX من رابط الـ PWA بأداة PWABuilder.</li><li>نرفعها في Partner Center.</li></ol>
+      </div>
+      <div class="panel" role="tabpanel" id="p-bb" aria-labelledby="t-bb" hidden>
+        <b>ملاحظة:</b> BlackBerry أوقفت أنظمتها ومتجرها (BlackBerry World) ولا عاد فيه نشر عليها. الموقع المتجاوب يشتغل على متصفح أي جهاز، وأجهزة BlackBerry الحديثة تشتغل بنظام Android فتنطبق عليها خطوات Android.
+      </div>
+      <p class="note">جهازك الحين: <span id="device-info" class="status"></span></p>
+    </section>
+
+    <!-- 7 -->
+    <section class="skill" id="s7">
+      <div class="skill-head"><span class="num">7</span><div>
+        <h2>تطوير تطبيقات الأجهزة الذكية التي تعمل بنظام تشغيل Android</h2>
+        <p class="lead">مشروع Android Studio بلغة Java: تطبيق يفتح نظام البصمة داخل WebView، ويعرّف نفسه للخادم كجهاز Android، وينبه الموظف إذا انقطع الاتصال.</p>
+      </div></div>
+      <ul class="where">
+        <li>الشاشة الرئيسية: <a href="../attendance-system/android/app/src/main/java/com/company/attendance/MainActivity.java">MainActivity.java</a></li>
+        <li>الصلاحيات والإعدادات: <a href="../attendance-system/android/app/src/main/AndroidManifest.xml">AndroidManifest.xml</a>، <a href="../attendance-system/android/app/build.gradle">build.gradle</a></li>
+      </ul>
+      <div class="tags"><span class="tag">Android Studio</span><span class="tag">Java</span><span class="tag">WebView</span><span class="tag">Gradle</span></div>
+      <details>
+        <summary>مقتطف من MainActivity.java</summary>
+<pre>public class MainActivity extends Activity {
+    private WebView web;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        web = new WebView(this);
+        setContentView(web);
+
+        WebSettings s = web.getSettings();
+        s.setJavaScriptEnabled(true);
+        s.setDomStorageEnabled(true);
+        s.setUserAgentString(s.getUserAgentString() + " AttendanceAndroid/1.0");
+
+        web.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest req, WebResourceError err) {
+                if (req.isForMainFrame())
+                    Toast.makeText(MainActivity.this, R.string.offline, Toast.LENGTH_LONG).show();
+            }
+        });
+        web.loadUrl(getString(R.string.server_url));
+    }
+}</pre>
+      </details>
+    </section>
+  </main>
+
+  <footer>كل البيانات في المشاريع تجريبية.</footer>
+</div>
+
+<script>
+// 2: محرر حي
+const starter = `<h2 style="font-family:sans-serif">عدّاد الحضور</h2>
+<button id="b">سجّل حضور</button>
+<p id="t">الحاضرين: 0</p>
+<script>
+  let n = 0;
+  document.getElementById('b').onclick = () => {
+    n++;
+    document.getElementById('t').textContent = 'الحاضرين: ' + n;
+  };
+<\/script>`;
+const code = document.getElementById('code'), out = document.getElementById('out');
+code.value = starter;
+let timer;
+const render = () => { out.srcdoc = '<html dir="rtl"><body>' + code.value + '</body></html>'; };
+code.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(render, 300); });
+render();
+
+// 4: محاكاة البصمة بنفس تسلسل Rules.java المبسط
+const ACTIONS = { IN: 'حضور', BREAK_START: 'بداية استراحة', BREAK_END: 'نهاية استراحة', OUT: 'انصراف' };
+const NEXT = { '': ['IN'], IN: ['BREAK_START', 'OUT'], BREAK_START: ['BREAK_END'], BREAK_END: ['OUT'], OUT: [] };
+let punches = [];
+const actionsEl = document.getElementById('actions'), reqEl = document.getElementById('req'), rowsEl = document.getElementById('rows');
+const allowed = () => NEXT[punches.length ? punches[punches.length - 1].action : ''];
+const time = () => new Date().toTimeString().slice(0, 8);
+
+function drawSim() {
+  actionsEl.innerHTML = '';
+  for (const [k, label] of Object.entries(ACTIONS)) {
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.className = allowed().includes(k) ? 'primary' : '';
+    b.onclick = () => punch(k);
+    actionsEl.appendChild(b);
+  }
+  rowsEl.innerHTML = punches.length
+    ? punches.map(p => `<tr><td class="m">1001</td><td class="m">${p.action}</td><td class="m">${p.time}</td><td class="m">WEB</td></tr>`).join('')
+    : '<tr><td colspan="4" class="note">ما فيه حركات اليوم.</td></tr>';
+}
+
+function punch(action) {
+  const req = `POST /api/punch\n{"action":"${action}","device":"WEB"}\n\n`;
+  if (!allowed().includes(action)) {
+    reqEl.textContent = req + `409 Conflict\n{"error":"هذا الإجراء غير متاح في الوقت الحالي"}`;
+    return;
+  }
+  punches.push({ action, time: time() });
+  reqEl.textContent = req + `200 OK\n{"punches":${JSON.stringify(punches)},"allowed":${JSON.stringify(allowed())}}`;
+  drawSim();
+}
+document.getElementById('reset').onclick = () => { punches = []; reqEl.textContent = '// اضغط إجراء لعرض الطلب والرد'; drawSim(); };
+drawSim();
+
+// 6: تبويبات المنصات
+const tabs = document.querySelectorAll('[role="tab"]');
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(o => {
+    const on = o === t;
+    o.setAttribute('aria-selected', on);
+    document.getElementById(o.getAttribute('aria-controls')).hidden = !on;
+  });
+}));
+const ua = navigator.userAgent;
+const platform = /Android/i.test(ua) ? 'Android' : /iPhone|iPad|iPod/i.test(ua) ? 'iOS' : /Windows/i.test(ua) ? 'Windows' : /Mac/i.test(ua) ? 'Mac' : 'غير معروف';
+const sw = 'serviceWorker' in navigator;
+const info = document.getElementById('device-info');
+info.textContent = `${platform}، ${sw ? 'المتصفح يدعم تثبيت الـ PWA' : 'المتصفح ما يدعم Service Worker'}`;
+info.classList.add(sw ? 'ok' : 'warn');
+const match = { Android: 't-android', iOS: 't-ios', Windows: 't-ms' }[platform];
+if (match) document.getElementById(match).click();
+</script>
+</body>
+</html>
