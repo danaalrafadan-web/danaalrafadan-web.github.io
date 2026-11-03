@@ -86,3 +86,5 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding-bottom:24px}
   .clock{font-size:38px}
   .brand p{display:none}
 }
+.demo-note{margin:12px 0 0;font-size:13px;color:var(--muted);text-align:center}
+[hidden]{display:none!important}

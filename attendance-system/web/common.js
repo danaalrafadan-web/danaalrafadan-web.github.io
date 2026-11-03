@@ -9,6 +9,12 @@ const session = {
 
 async function api(path, body){
   const s = session.get();
+  if(window.demoApi){ // على github.io: الطلبات تروح للوضع التجريبي في demo-api.js
+    const r = await demoApi(path, body, s && s.token);
+    if(r.status === 401 && s){ session.clear(); location.reload(); }
+    if(r.status !== 200) throw new Error(r.data.error || 'حدث خطأ');
+    return r.data;
+  }
   const res = await fetch(path, {
     method: body ? 'POST' : 'GET',
     headers: Object.assign({'Content-Type':'application/json'}, s ? {Authorization:'Bearer ' + s.token} : {}),

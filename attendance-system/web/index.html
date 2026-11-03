@@ -36,6 +36,7 @@
       <div class="field"><label for="pin">الرمز السري</label><input id="pin" type="password" inputmode="numeric" autocomplete="current-password" required></div>
       <button class="primary full">دخول</button>
       <div class="msg err" id="loginMsg"></div>
+      <p class="demo-note" id="demoNote" hidden>تجربة: موظف 1001 ومدير 9000، والرمز 1234. بياناتك تنحفظ في جهازك فقط</p>
     </form>
   </section>
 
@@ -75,6 +76,7 @@
 </main>
 <footer>نظام الحضور والانصراف · مرتبط بقاعدة بيانات Oracle</footer>
 
+<script src="demo-api.js"></script>
 <script src="common.js"></script>
 <script>
 const STATUS = {
@@ -89,7 +91,9 @@ async function doLogin(e){
   $('loginMsg').textContent = '';
   try{
     const s = await api('/api/login', {empId: $('empId').value, pin: $('pin').value});
-    session.set(s); show();
+    session.set(s);
+    if(s.role === 'ADMIN' && new URLSearchParams(location.search).get('next') === 'admin') return location.href = 'admin.html';
+    show();
   }catch(err){ $('loginMsg').textContent = err.message; }
 }
 

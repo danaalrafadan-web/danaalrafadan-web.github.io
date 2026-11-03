@@ -173,23 +173,6 @@
     background:linear-gradient(90deg,var(--accent),#f0d38a,var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .brand{min-width:0}
 
-  /* ---------- الفيديو التوضيحي ---------- */
-  .videoSec{margin-top:20px;padding:20px}
-  .videoSec h2{margin:0 0 6px;font-size:16px}
-  .videoSec p{margin:0 0 14px;color:var(--muted);font-size:14px}
-  .vidLink{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
-    aspect-ratio:16/9;width:100%;border-radius:14px;overflow:hidden;text-decoration:none;color:#fff;padding:16px;text-align:center;
-    background:radial-gradient(600px 240px at 80% 0,#2b5aa8 0,transparent 60%),linear-gradient(135deg,var(--hero1),var(--hero2));
-    transition:transform .15s,box-shadow .2s}
-  .vidLink:hover{transform:translateY(-2px);box-shadow:0 16px 30px -14px var(--hero2)}
-  .vidLink .play{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:#ffffff22;border:2px solid #ffffff55;transition:background .2s}
-  .vidLink:hover .play{background:#e2545bcc}
-  .vidLink .vt{direction:ltr;white-space:nowrap;max-width:100%;font-weight:700;letter-spacing:.08em;font-size:clamp(15px,5vw,40px);line-height:1.2;
-    background:linear-gradient(90deg,var(--accent),#f0d38a,var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .vidLink small{opacity:.8;font-size:13px}
-  .vidUrl{display:inline-block;margin-top:12px;direction:ltr;color:var(--hero2);font-size:13px;word-break:break-all}
-  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vidUrl{color:var(--accent2)}}
-
   /* ---------- المساعد الذكي ---------- */
   .botSec{margin-top:20px;padding:20px}
   .botLog{display:flex;flex-direction:column;gap:10px;max-height:420px;overflow-y:auto;padding:4px 2px 12px}
@@ -343,16 +326,6 @@
     </details>
   </div>
 
-  <section class="card videoSec" id="video">
-    <h2>فيديو توضيحي للنظام</h2>
-    <p>اضغط على الصورة لمشاهدة شرح طريقة استخدام نظام الحضور والانصراف.</p>
-    <a class="vidLink" href="https://youtu.be/SMARTATTENDANCE" target="_blank" rel="noopener" aria-label="مشاهدة الفيديو التوضيحي على يوتيوب">
-      <span class="play"><svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>
-      <span class="vt">SMART ATTENDANCE</span>
-      <small>مشاهدة الفيديو على YouTube</small>
-    </a>
-    <a class="vidUrl" href="https://youtu.be/SMARTATTENDANCE" target="_blank" rel="noopener">https://youtu.be/SMARTATTENDANCE</a>
-  </section>
 </main>
 <footer>نظام الحضور والانصراف الذكي</footer>
 <div class="toast" id="toast"></div>

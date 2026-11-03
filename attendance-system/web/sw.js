@@ -1,7 +1,7 @@
 // Service Worker: يخلي الموقع قابل للتثبيت على الجوال (Android / iOS / Windows)
 // يخزّن واجهة الموقع فقط، أما البصمة فتحتاج اتصال بالخادم دائماً.
-const CACHE = 'attendance-v1';
-const SHELL = ['index.html', 'admin.html', 'style.css', 'common.js', 'icon.svg', 'manifest.webmanifest'];
+const CACHE = 'attendance-v2';
+const SHELL = ['index.html', 'admin.html', 'style.css', 'common.js', 'demo-api.js', 'icon.svg', 'manifest.webmanifest'];
 
 self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))));
 self.addEventListener('activate', e => e.waitUntil(

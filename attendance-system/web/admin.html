@@ -17,7 +17,7 @@
       <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b8913f" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
       <div><h1>لوحة المدير</h1><p>متابعة الحضور والغياب</p></div>
     </div>
-    <div class="user"><span id="who"></span><a href="index.html">صفحة البصمة</a><button onclick="logout()">خروج</button></div>
+    <div class="user" id="userBar" hidden><span id="who"></span><a href="index.html">صفحة البصمة</a><button onclick="logout()">خروج</button></div>
   </div>
 </header>
 
@@ -70,11 +70,13 @@
   </section>
 </main>
 
+<script src="demo-api.js"></script>
 <script src="common.js"></script>
 <script>
 const s = session.get();
-if(!s || s.role !== 'ADMIN') location.href = 'index.html';
+if(!s || s.role !== 'ADMIN') location.href = 'index.html?next=admin';
 $('who').textContent = s ? s.name : '';
+$('userBar').hidden = !(s && s.role === 'ADMIN');
 $('day').value = new Date().toLocaleDateString('en-CA');
 
 const COLORS = {PRESENT:'var(--in)', BREAK:'var(--brk)', OVERTIME:'var(--ot)', LEFT:'var(--navy2)', ABSENT:'var(--out)'};
