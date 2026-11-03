@@ -163,6 +163,7 @@
         <span class="hint">ضع المتغيرات بين قوسين مزدوجين مثل {{الموضوع}}</span>
         <span class="hint" id="varsPreview"></span>
 
+        <span class="hint">القوالب اللي تضيفها تقدر تعدلها من نفس المتصفح</span>
         <button type="submit" id="saveBtn">حفظ القالب</button>
         <button type="button" id="cancelEdit" class="btn-outline" style="display:none">إلغاء التعديل</button>
         <div id="status"></div>
@@ -196,7 +197,16 @@
   // ضع بيانات مشروعك من Supabase → Project Settings → API
   const SUPABASE_URL = 'https://bulnrcxgttththpzfqtl.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_BfRCJCwQBcFBizj8wTQKnA_eTJ7Sl3Y';
-  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // storageKey يفصل جلسة القوالب عن جلسة smart-attendance لأنهم على نفس النطاق
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storageKey: 'prompt-templates-auth' } });
+
+  // كل متصفح ياخذ هوية مجهولة، عشان يعدل ويحذف قوالبه هو بس
+  let userId = null;
+  async function ensureSession() {
+    let { data: { session } } = await db.auth.getSession();
+    if (!session) ({ data: { session } } = await db.auth.signInAnonymously());
+    userId = session ? session.user.id : null;
+  }
 
   let templates = [];
 
@@ -383,6 +393,10 @@
     document.getElementById('useTitle').textContent = 'استخدام القالب: ' + t.title;
     document.getElementById('editBtn').onclick = () => enterEditMode(t);
     resetDeleteBtn();
+    // التعديل والحذف لصاحب القالب بس
+    const mine = !!userId && t.owner === userId;
+    document.getElementById('editBtn').style.display = mine ? '' : 'none';
+    document.getElementById('deleteBtn').style.display = mine ? '' : 'none';
     document.getElementById('useStatus').textContent = '';
     document.getElementById('deleteBtn').onclick = () => deleteTemplate(t);
     const box = document.getElementById('varInputs');
@@ -419,7 +433,7 @@
         setTimeout(() => b.textContent = 'نسخ الأمر', 1500);
       });
 
-  loadTemplates();
+  ensureSession().catch(() => {}).finally(loadTemplates);
 </script>
 </body>
 </html>

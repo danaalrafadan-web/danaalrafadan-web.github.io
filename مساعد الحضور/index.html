@@ -1,21 +1,7 @@
-<script>
-// ===== تعليمات الذكاء الاصطناعي: عدلها من هنا =====
-const AI_INSTRUCTIONS = `
-الدور: أنت "مساعد الدوام"، مساعد شؤون موظفين يعرف سياسة الحضور والانصراف في شركة تجريبية.
-المهمة: تجاوب على أسئلة الموظف عن الحضور والتأخير والاستئذان حسب هذي القواعد فقط:
-- الدوام من 8:00 الصباح إلى 4:00 العصر.
-- التأخير المسموح 15 دقيقة، يعني الحضور لين 8:15 ما يعتبر تأخير. بعدها يحسب تأخير من 8:00.
-- الاستئذان حده الأقصى ساعتين في اليوم.
-إذا ذكر الموظف وقت، احسب له بالدقائق ووضح النتيجة (متأخر أو لا، كم دقيقة، هل الاستئذان مسموح).
-الأسلوب: ودود وواضح ومباشر، وخذ النتيجة أول شي ثم السبب.
-اللهجة: سعودية
-الطول: قصير، من جملتين إلى خمس جمل.
-خارج الموضوع: إذا السؤال ما له علاقة بالحضور والانصراف، اعتذر بلطف وقل إنك تساعد بس في أسئلة الدوام والتأخير والاستئذان.
-`;
-// ===== نهاية التعليمات =====
-</script>
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>مساعد الدوام</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Reem+Kufi:wght@600&display=swap">
 <style>
 /* تخطيط: عمود واحد ضيق، بطاقة القواعد فوق ثم السؤال ثم الرد */
@@ -56,6 +42,8 @@ button:disabled{opacity:.55;cursor:wait}
 .answer{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;white-space:pre-wrap;min-height:60px}
 .answer.err{color:var(--warn);border-color:var(--warn)}
 .note{font-size:.8rem;color:var(--muted);margin:0}
+.sample-tag{display:inline-block;font-weight:700;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:0 10px;margin:8px 0 4px;font-size:.85rem}
+.notice{color:var(--warn);font-size:.9rem;margin:0}
 </style>
 
 <main dir="rtl" lang="ar">
@@ -78,6 +66,7 @@ button:disabled{opacity:.55;cursor:wait}
       <button type="button" class="chip">أبي أستأذن 3 ساعات، ينفع؟</button>
       <button type="button" class="chip">طلعت 3:30، كم نقصني؟</button>
     </div>
+    <p class="note">تجربة تعليمية، لا تكتب معلومات شخصية</p>
     <div class="row">
       <span class="count" id="count">0 / 500</span>
       <button type="submit" id="send">اسأل</button>
@@ -85,7 +74,7 @@ button:disabled{opacity:.55;cursor:wait}
   </form>
 
   <div class="answer" id="answer" aria-live="polite">اكتب سؤالك فوق واضغط «اسأل».</div>
-  <p class="note">بيانات تجريبية. لا تكتب معلومات شخصية أو كلمات سر.</p>
+  <p class="note">بيانات تجريبية. الرد من الذكاء الاصطناعي، وتعليماته في مجلد worker.</p>
 </main>
 
 <script>
@@ -104,27 +93,44 @@ document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () =
 
 function show(text, isErr){ answer.textContent = text; answer.classList.toggle('err', !!isErr); }
 
+// الرد يجي من الـ Worker (مجلد worker)، وتعليمات الذكاء الاصطناعي هناك
+const WORKER_URL = 'https://ai-api.danaalrafadan.workers.dev';
+
+// يطلع لما يتوقف الـ Worker أو يرد بخطأ أو يخلص رصيد اليوم
+const SAMPLE = 'سؤال: وصلت الساعة 8:20، هل يحسب علي تأخير؟\nالرد:إيه، يحسب عليك تأخير 20 دقيقة. التأخير المسموح لين 8:15 بس، وإذا تعديتها ينحسب التأخير من 8:00.';
+
+function showSample(notice){
+  const n = document.createElement('p'); n.className = 'notice'; n.textContent = notice;
+  const tag = document.createElement('span'); tag.className = 'sample-tag'; tag.textContent = 'مثال جاهز';
+  const t = document.createElement('div'); t.textContent = SAMPLE;
+  answer.classList.remove('err'); answer.replaceChildren(n, tag, t);
+}
+
+const NOTICE = {
+  429: 'طلبات كثيرة ورا بعض. انتظر دقيقة وجرب مرة ثانية.',
+  413: 'السؤال أطول من 500 حرف، اختصره شوي.',
+  timeout: 'الرد تأخر أكثر من 30 ثانية. جرب مرة ثانية.',
+  other: 'المساعد مو متاح الحين، يمكن خلص رصيد اليوم. يرجع بعد الساعة 3 الفجر.'
+};
+
 document.getElementById('ask').addEventListener('submit', async e => {
   e.preventDefault();
   const text = q.value.trim().slice(0, MAX);
   if (!text) { show('اكتب سؤالك أول.', true); return; }
 
-  const sample = window.claude ? await window.claude.use('sample') : null;
-  if (!sample) { show('المساعد مو متاح هنا. افتح الصفحة من claude.ai وتأكد إنك مسجل دخول.', true); return; }
-
   send.disabled = true; show('جاري التفكير...');
   const ctrl = new AbortController();
-  let timedOut = false;
-  const timer = setTimeout(() => { timedOut = true; ctrl.abort(); }, TIMEOUT_MS);
+  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   try {
-    const res = await sample([{ role: 'user', content: AI_INSTRUCTIONS + '\n\nالتزم باللهجة المكتوبة في خانة "اللهجة" في كل ردك.\n\nسؤال الموظف:\n' + text }],
-      { signal: ctrl.signal, cache: false, onText: ({ text }) => show(text) });
-    show(res.text || 'ما وصل رد، جرب مرة ثانية.', !res.text);
+    const res = await fetch(WORKER_URL + '/assistant', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: text }), signal: ctrl.signal
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.text) show(data.text);
+    else showSample(NOTICE[res.status] || NOTICE.other);
   } catch (err) {
-    if (timedOut) show('الرد تأخر أكثر من 30 ثانية. جرب مرة ثانية.', true);
-    else if (err && err.code === 'not_granted') show('ما أعطيت الصفحة إذن تسأل Claude. اسمح لها من نافذة الإذن وجرب مرة ثانية.', true);
-    else if (err && err.code === 'rate_limited') show('طلبات كثيرة. انتظر دقيقة وجرب مرة ثانية.', true);
-    else show('صار خطأ: ' + ((err && err.message) || 'غير معروف') + '. جرب مرة ثانية.', true);
+    showSample(ctrl.signal.aborted ? NOTICE.timeout : NOTICE.other);
   } finally { clearTimeout(timer); send.disabled = false; }
 });
 </script>

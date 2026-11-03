@@ -1,16 +1,7 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>مخطط الرحلات</title>
-<script>
-// ===== تعليمات الذكاء الاصطناعي: عدلها من هنا =====
-const AI_INSTRUCTIONS = `
-الدور: أنت مخطط رحلات سياحية خبير وودود.
-المهمة: تسوي برنامج رحلة يوم بيوم حسب الوجهة وعدد الأيام والميزانية والاهتمامات، وتقترح أماكن وأكل وتوزع الميزانية تقريبياً.
-الأسلوب: مرتب وواضح، عنوان لكل يوم ونقاط قصيرة (صباح، ظهر، مساء)، وتختم بنصيحتين عمليتين.
-اللهجة: مصريه 
-الطول: متوسط، ما يزيد عن 300 كلمة تقريباً.
-خارج الموضوع: إذا الطلب ما له علاقة بالسفر والرحلات، اعتذر بلطف وقل إنك تساعد بس في تخطيط الرحلات.
-`;
-// ===== نهاية التعليمات =====
-</script>
 <style>
 :root{--bg:#f6f4ef;--card:#fff;--text:#1f2a2e;--muted:#5d6b70;--accent:#0f7a6c;--accent-text:#fff;--border:#e2ddd3;--error:#b3261e;--error-bg:#fdecea}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141a1c;--card:#1d2528;--text:#e8eef0;--muted:#9aa9ae;--accent:#3cbfa9;--accent-text:#0b1a17;--border:#2e3a3e;--error:#ffb4ab;--error-bg:#3a1d1a}}
@@ -31,6 +22,8 @@ button{margin-top:14px;width:100%;padding:12px;border:0;border-radius:10px;backg
 button:disabled{opacity:.6;cursor:wait}
 .msg{margin-top:14px;padding:10px 12px;border-radius:10px;background:var(--error-bg);color:var(--error);display:none}
 .result{margin-top:18px;display:none;white-space:pre-wrap}
+.sample-tag{display:inline-block;font-weight:700;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:0 10px;margin:8px 0 6px;font-size:.85rem}
+.note{font-size:.8rem;color:var(--muted);margin:4px 0 0}
 .status{color:var(--muted);font-size:.9rem;margin-top:10px;min-height:1.2em}
 </style>
 <main dir="rtl" lang="ar">
@@ -48,6 +41,7 @@ button:disabled{opacity:.6;cursor:wait}
     <label for="notes">ملاحظات إضافية</label>
     <textarea id="notes" maxlength="500" placeholder="مثلاً: معي أطفال، ما أحب المشي الطويل…"></textarea>
     <div class="count"><span id="cnt">0</span> / 500</div>
+    <p class="note">تجربة تعليمية، لا تكتب معلومات شخصية</p>
     <button id="go" type="submit">خطط رحلتي</button>
     <div class="status" id="status"></div>
     <div class="msg" id="msg"></div>
@@ -61,6 +55,45 @@ $("notes").addEventListener("input", () => { $("cnt").textContent = $("notes").v
 
 function showError(t){ $("msg").textContent = t; $("msg").style.display = "block"; }
 
+// الرد يجي من الـ Worker (مجلد worker)، وتعليمات الذكاء الاصطناعي هناك
+const WORKER_URL = "https://ai-api.danaalrafadan.workers.dev";
+
+// يطلع لما يتوقف الـ Worker أو يرد بخطأ أو يخلص رصيد اليوم
+const SAMPLE = `طلب: أبها، 3 أيام، 3000 ريال، طبيعة وأكل
+
+اليوم الأول: وسط أبها
+- الصبح: فطار في مطعم شعبي، وبعدين قرية المفتاحة الفنية
+- الضهر: غدا مندي، وراحة في الفندق
+- بالليل: مشي في ممشى الضباب وقهوة على الجبل
+
+اليوم التاني: السودة
+- الصبح: التلفريك وجبال السودة
+- الضهر: غدا مشويات في السودة
+- بالليل: سوق الثلاثاء وحلى جنوبي
+
+اليوم التالت: رجال ألمع
+- الصبح: قرية رجال ألمع التراثية
+- الضهر: غدا عريكة وحنيذ
+- بالليل: رجوع أبها وعشا خفيف
+
+الميزانية تقريبًا: سكن 1500، أكل 900، مواصلات وأنشطة 600
+
+نصيحتين: خد جاكيت لأن الجو بيبرد بالليل، واحجز التلفريك بدري.`;
+
+function showSample(notice){
+  showError(notice);
+  const tag = document.createElement("span"); tag.className = "sample-tag"; tag.textContent = "مثال جاهز";
+  const t = document.createElement("div"); t.textContent = SAMPLE;
+  $("out").replaceChildren(tag, t); $("out").style.display = "block";
+}
+
+const NOTICE = {
+  429: "طلبات كثيرة ورا بعض. انتظر دقيقة وجرب.",
+  413: "واحد من الحقول أطول من 500 حرف، اختصره شوي.",
+  timeout: "الرد تأخر كثير. جرب مرة ثانية بعد شوي.",
+  other: "المخطط مو متاح الحين، يمكن خلص رصيد اليوم. يرجع بعد الساعة 3 الفجر."
+};
+
 $("f").addEventListener("submit", async e => {
   e.preventDefault();
   $("msg").style.display = "none";
@@ -69,14 +102,8 @@ $("f").addEventListener("submit", async e => {
   const dest = $("dest").value.trim();
   if (!dest) return showError("اكتب الوجهة أول.");
 
-  const sample = await claude.use("sample");
-  if (!sample) return showError("ميزة الذكاء الاصطناعي مو متاحة هنا. افتح الصفحة من claude.ai وأنت مسجل دخول.");
-
-  const request = `الوجهة: ${dest}\nعدد الأيام: ${$("days").value}\nالميزانية: ${$("budget").value || "غير محددة"} ريال\nالاهتمامات: ${$("likes").value || "غير محددة"}\nملاحظات: ${notes || "لا يوجد"}`;
-  const prompt = `${AI_INSTRUCTIONS}\nمهم: رد دايم باللهجة المكتوبة في خانة "اللهجة" فوق.\n\nطلب المستخدم:\n${request}`;
-
   $("go").disabled = true;
-  $("out").style.display = "block";
+  $("out").style.display = "none";
   $("out").textContent = "";
   $("status").textContent = "جاري التخطيط…";
   const slow = setTimeout(() => { $("status").textContent = "الرد متأخر شوي، انتظر لحظات…"; }, 15000);
@@ -84,17 +111,17 @@ $("f").addEventListener("submit", async e => {
   const stop = setTimeout(() => ctrl.abort(), 90000);
 
   try {
-    const res = await sample(prompt, { signal: ctrl.signal, cache: false, onText: ({text}) => { $("out").textContent = text; } });
-    $("out").textContent = res.text;
-    $("status").textContent = "";
+    const res = await fetch(WORKER_URL + "/trip", {
+      method: "POST", headers: { "Content-Type": "application/json" }, signal: ctrl.signal,
+      body: JSON.stringify({ dest, days: $("days").value, budget: $("budget").value, likes: $("likes").value.trim(), notes })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.text) { $("out").textContent = data.text; $("out").style.display = "block"; }
+    else showSample(NOTICE[res.status] || NOTICE.other);
   } catch (err) {
-    $("status").textContent = "";
-    if (!$("out").textContent) $("out").style.display = "none";
-    if (ctrl.signal.aborted) showError("الرد تأخر كثير. جرب مرة ثانية بعد شوي.");
-    else if (err && err.code === "not_granted") showError("ما تم السماح للصفحة تسأل Claude. اسمح لها من قائمة الأذونات وجرب مرة ثانية.");
-    else if (err && err.code === "rate_limited") showError("طلبات كثيرة ورا بعض. انتظر دقيقة وجرب.");
-    else showError("صار خطأ وما قدرنا نجيب الخطة. جرب مرة ثانية.");
+    showSample(ctrl.signal.aborted ? NOTICE.timeout : NOTICE.other);
   } finally {
+    $("status").textContent = "";
     clearTimeout(slow); clearTimeout(stop);
     $("go").disabled = false;
   }
