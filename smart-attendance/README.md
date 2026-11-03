@@ -8,7 +8,7 @@
 يجاوب من لائحة الحضور وشرح النظام وسجل الموظف. السؤال وسجل الموظف يروحون للذكاء الاصطناعي المجاني (Cloudflare Workers AI)، وإذا ما وصل رد تعرض الصفحة «مثال جاهز».
 
 ## وين ألقى AI_INSTRUCTIONS؟
-في الـ Worker في مستودع [ai-worker](https://github.com/danaalrafadan-web/ai-worker)، في ملف `worker/src/index.js`، أول شي في الملف، بين هذين السطرين:
+في الـ Worker في مستودع [ai-worker](https://github.com/danaalrafadan-web/ai-worker)، في ملف `src/index.js` (وعندك في الجهاز: `worker/src/index.js`)، أول شي في الملف، بين هذين السطرين:
 
 ```
 // ===== تعليمات الذكاء الاصطناعي: عدلها من هنا =====

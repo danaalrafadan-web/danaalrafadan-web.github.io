@@ -10,7 +10,7 @@
 الرابط: https://danaalrafadan-web.github.io/مساعد%20الحضور/
 
 ## وين ألقى AI_INSTRUCTIONS؟
-انتقلت للـ Worker في مستودع [ai-worker](https://github.com/danaalrafadan-web/ai-worker)، في ملف `worker/src/index.js`، أول شي في الملف، بين هذين السطرين:
+انتقلت للـ Worker في مستودع [ai-worker](https://github.com/danaalrafadan-web/ai-worker)، في ملف `src/index.js` (وعندك في الجهاز: `worker/src/index.js`)، أول شي في الملف، بين هذين السطرين:
 
 ```
 // ===== تعليمات الذكاء الاصطناعي: عدلها من هنا =====
