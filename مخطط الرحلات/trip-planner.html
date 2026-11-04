@@ -21,7 +21,12 @@ textarea{min-height:90px;resize:vertical}
 button{margin-top:14px;width:100%;padding:12px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-text);font:inherit;font-weight:700;cursor:pointer}
 button:disabled{opacity:.6;cursor:wait}
 .msg{margin-top:14px;padding:10px 12px;border-radius:10px;background:var(--error-bg);color:var(--error);display:none}
-.result{margin-top:18px;display:none;white-space:pre-wrap}
+.result{margin-top:18px;display:none}
+.result h3{margin:18px 0 6px;font-size:1.1rem;color:var(--accent)}
+.result h3:first-of-type{margin-top:4px}
+.result p{margin:6px 0}
+.result ul{margin:4px 0 10px;padding-inline-start:22px}
+.result li{margin:3px 0}
 .sample-tag{display:inline-block;font-weight:700;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:0 10px;margin:8px 0 6px;font-size:.85rem}
 .note{font-size:.8rem;color:var(--muted);margin:4px 0 0}
 .status{color:var(--muted);font-size:.9rem;margin-top:10px;min-height:1.2em}
@@ -80,11 +85,45 @@ const SAMPLE = `طلب: أبها، 3 أيام، 3000 ريال، طبيعة وأ�
 
 نصيحتين: خد جاكيت لأن الجو بيبرد بالليل، واحجز التلفريك بدري.`;
 
+// رد الذكاء الاصطناعي فيه Markdown (** و # و -)، نحوله لعناصر مرتبة بدل ما تطلع الرموز
+function addInline(el, text){
+  text.split(/\*\*(.+?)\*\*/g).forEach((part, i) => {
+    const clean = part.replace(/[*_`]+/g, "");
+    if (!clean) return;
+    if (i % 2) { const b = document.createElement("strong"); b.textContent = clean; el.append(b); }
+    else el.append(clean);
+  });
+  return el;
+}
+
+function renderPlan(text){
+  const frag = document.createDocumentFragment();
+  let list = null;
+  for (const raw of text.split("\n")) {
+    const line = raw.trim();
+    if (!line || /^([-*_=])\1{2,}$/.test(line)) { list = null; continue; }
+    const item = line.match(/^(?:[-*•+]|\d+[.)])\s+(.*)$/);
+    if (item) {
+      if (!list) { list = document.createElement("ul"); frag.append(list); }
+      list.append(addInline(document.createElement("li"), item[1]));
+      continue;
+    }
+    list = null;
+    const head = line.match(/^#{1,6}\s*(.*)$/) || line.match(/^\*\*([^*]+)\*\*:?$/);
+    if (head || (/^اليوم\s/.test(line) && line.length < 60)) frag.append(addInline(document.createElement("h3"), head ? head[1] : line));
+    else frag.append(addInline(document.createElement("p"), line));
+  }
+  return frag;
+}
+
+function showPlan(text, ...before){
+  $("out").replaceChildren(...before, renderPlan(text)); $("out").style.display = "block";
+}
+
 function showSample(notice){
   showError(notice);
   const tag = document.createElement("span"); tag.className = "sample-tag"; tag.textContent = "مثال جاهز";
-  const t = document.createElement("div"); t.textContent = SAMPLE;
-  $("out").replaceChildren(tag, t); $("out").style.display = "block";
+  showPlan(SAMPLE, tag);
 }
 
 const NOTICE = {
@@ -116,7 +155,7 @@ $("f").addEventListener("submit", async e => {
       body: JSON.stringify({ dest, days: $("days").value, budget: $("budget").value, likes: $("likes").value.trim(), notes })
     });
     const data = await res.json().catch(() => ({}));
-    if (res.ok && data.text) { $("out").textContent = data.text; $("out").style.display = "block"; }
+    if (res.ok && data.text) showPlan(data.text);
     else showSample(NOTICE[res.status] || NOTICE.other);
   } catch (err) {
     showSample(ctrl.signal.aborted ? NOTICE.timeout : NOTICE.other);
@@ -127,3 +166,10 @@ $("f").addEventListener("submit", async e => {
   }
 });
 </script>
+<!-- زر الرجوع لقائمة المشاريع -->
+<a class="back-home" href="../" aria-label="الرجوع لقائمة المشاريع">→ كل المشاريع</a>
+<style>
+.back-home{position:fixed;bottom:16px;right:16px;z-index:2000;display:inline-flex;align-items:center;gap:4px;padding:8px 14px;border-radius:999px;background:#1f2a2e;color:#fff;border:1px solid rgba(255,255,255,.18);font:600 14px/1.4 "Tajawal","Segoe UI",Tahoma,sans-serif;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.25);direction:rtl}
+.back-home:hover,.back-home:focus-visible{background:#0f7a6c;color:#fff}
+@media print{.back-home{display:none}}
+</style>
