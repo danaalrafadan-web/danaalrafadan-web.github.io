@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARCHIVE AI | أرشيف</title>
+<meta name="description" content="نموذج أولي مستقل لمنصة ذكية لإدارة وأرشفة المستندات والبحث فيها وتحليلها">
+<meta name="theme-color" content="#04060d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23c4b5fd'/%3E%3Cstop offset='.5' stop-color='%236366f1'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='48' height='48' rx='12' fill='%230c1230'/%3E%3Cpath d='M24 8 40 16 24 24 8 16Z' fill='url(%23g)'/%3E%3Cpath d='M8 24l16 8 16-8M8 31l16 8 16-8' fill='none' stroke='url(%23g)' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<!-- شاشة الترحيب: تختفي تلقائيًا بعد التحميل، أو بالنقر عليها -->
+<div id="splash" role="status" aria-label="ARCHIVE AI">
+  <div class="splash-inner">
+    <div class="splash-mark"><span class="ring"></span><span class="ring2"></span>
+      <svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="spg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c4b5fd"/><stop offset=".5" stop-color="#6366f1"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><path d="M24 5 43 14.5 24 24 5 14.5Z" fill="url(#spg)"/><path d="M5 23l19 9.5L43 23" fill="none" stroke="url(#spg)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/><path d="M5 31.5 24 41l19-9.5" fill="none" stroke="url(#spg)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" opacity=".45"/></svg>
+    </div>
+    <div class="splash-word" aria-hidden="true"><span style="animation-delay:.10s">A</span><span style="animation-delay:.16s">R</span><span style="animation-delay:.22s">C</span><span style="animation-delay:.28s">H</span><span style="animation-delay:.34s">I</span><span style="animation-delay:.40s">V</span><span style="animation-delay:.46s">E</span><b>AI</b></div>
+    <div class="splash-ar">أرشيف — منصة ذكية لإدارة وأرشفة وتحليل المحتوى</div>
+    <div class="splash-bar"><i></i></div>
+    <div class="splash-note">نموذج أولي مستقل مقترح لجهة التدريب · Independent prototype</div>
+  </div>
+</div>
+
+<div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
+<div id="app"></div>
+<div id="modal-root"></div>
+<div id="toasts" aria-live="polite"></div>
+<input type="file" id="file-input" multiple accept=".pdf,.docx,.xlsx,.pptx" hidden>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="js/core.js"></script>
+<script src="js/data.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/pages/dashboard.js"></script>
+<script src="js/pages/search.js"></script>
+<script src="js/pages/files.js"></script>
+<script src="js/pages/insights.js"></script>
+<script src="js/pages/users.js"></script>
+<script src="js/pages/activity.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
